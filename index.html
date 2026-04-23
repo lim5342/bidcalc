@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>부동산 수익률 분석표 | 대장옥션</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ====== HEADER ====== -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-badge">대장옥션</span>
+      <span class="brand-title">부동산 수익률 분석표</span>
+    </div>
+    <p class="header-desc">경매 물건 분석부터 세후 순수익까지 — 입력하면 자동으로 계산됩니다</p>
+  </div>
+</header>
+
+<!-- ====== GUIDE BANNER ====== -->
+<section class="guide-banner">
+  <div class="container">
+    <div class="guide-grid">
+      <div class="guide-item">
+        <i class="fas fa-pencil-alt"></i>
+        <span>①&nbsp;물건 정보 입력</span>
+      </div>
+      <i class="fas fa-chevron-right guide-arrow"></i>
+      <div class="guide-item">
+        <i class="fas fa-calculator"></i>
+        <span>②&nbsp;비용 자동 계산</span>
+      </div>
+      <i class="fas fa-chevron-right guide-arrow"></i>
+      <div class="guide-item">
+        <i class="fas fa-file-invoice-dollar"></i>
+        <span>③&nbsp;세금 자동 계산</span>
+      </div>
+      <i class="fas fa-chevron-right guide-arrow"></i>
+      <div class="guide-item highlight">
+        <i class="fas fa-chart-line"></i>
+        <span>④&nbsp;세후 수익률 확인</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== MAIN FORM ====== -->
+<main class="container main-layout">
+
+  <!-- LEFT: 입력 패널 -->
+  <div class="input-panel">
+
+    <!-- ─── BLOCK 1: 물건 기본 정보 ─── -->
+    <div class="card">
+      <div class="card-header">
+        <span class="step-badge">STEP 1</span>
+        <h2 class="card-title"><i class="fas fa-home"></i> 물건 기본 정보</h2>
+        <p class="card-desc">경매 사건정보와 물건 기본 현황을 입력해 주세요.</p>
+      </div>
+      <div class="card-body">
+
+        <div class="field-group">
+          <label>물건 종류 <span class="required">*</span></label>
+          <div class="btn-toggle-group" id="propertyTypeGroup">
+            <button class="btn-toggle active" data-value="아파트" onclick="selectType(this)">🏢 아파트</button>
+            <button class="btn-toggle" data-value="빌라/다세대" onclick="selectType(this)">🏠 빌라/다세대</button>
+            <button class="btn-toggle" data-value="오피스텔" onclick="selectType(this)">🏨 오피스텔</button>
+            <button class="btn-toggle" data-value="상가" onclick="selectType(this)">🏪 상가</button>
+            <button class="btn-toggle" data-value="토지" onclick="selectType(this)">🌿 토지</button>
+          </div>
+          <p class="field-tip"><i class="fas fa-info-circle"></i> 물건 종류에 따라 취득세율이 달라집니다</p>
+        </div>
+
+        <div class="field-row-2">
+          <div class="field-group">
+            <label>건물 면적 (㎡) <span class="required">*</span></label>
+            <div class="input-addon">
+              <input type="number" id="buildingAreaSqm" placeholder="예: 42.2" oninput="sqmToPyeong()" />
+              <span class="addon-unit">㎡</span>
+            </div>
+            <p class="field-tip"><i class="fas fa-sync-alt"></i> 아래에 평수가 자동 환산됩니다</p>
+          </div>
+          <div class="field-group">
+            <label>건물 면적 (평)</label>
+            <div class="input-addon">
+              <input type="number" id="buildingAreaPyeong" placeholder="자동 환산" oninput="pyeongToSqm()" />
+              <span class="addon-unit">평</span>
+            </div>
+            <p class="field-tip"><i class="fas fa-info-circle"></i> 평수 입력 시 ㎡로 역산됩니다</p>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>소재지 <span class="note">(선택)</span></label>
+          <input type="text" id="address" placeholder="예: 서울 구로구 구로동 현대아파트 103동 5층 501호" />
+        </div>
+
+        <div class="field-row-2">
+          <div class="field-group">
+            <label>사건번호 <span class="note">(선택)</span></label>
+            <input type="text" id="caseNumber" placeholder="예: 2025타경 12345" />
+          </div>
+          <div class="field-group">
+            <label>대지권 (평) <span class="note">(선택)</span></label>
+            <input type="number" id="landRight" placeholder="예: 8.62" />
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /card -->
+
+    <!-- ─── BLOCK 2: 입찰 · 대출 · 취득비용 ─── -->
+    <div class="card">
+      <div class="card-header">
+        <span class="step-badge">STEP 2</span>
+        <h2 class="card-title"><i class="fas fa-gavel"></i> 입찰 & 초기 투자비용</h2>
+        <p class="card-desc">감정가·입찰가를 입력하면 대출금·보증금·잔금이 자동 계산됩니다.</p>
+      </div>
+      <div class="card-body">
+
+        <div class="field-row-2">
+          <div class="field-group">
+            <label>감정가 <span class="required">*</span></label>
+            <div class="input-addon">
+              <input type="number" id="appraisedValue" placeholder="예: 195000000" oninput="calcAll()" />
+              <span class="addon-unit">원</span>
+            </div>
+            <p class="field-tip"><i class="fas fa-info-circle"></i> 법원 경매 공고에 나온 감정 평가액</p>
+          </div>
+          <div class="field-group">
+            <label>최저 입찰가 <span class="required">*</span></label>
+            <div class="input-addon">
+              <input type="number" id="minBidPrice" placeholder="예: 95550000" oninput="calcAll()" />
+              <span class="addon-unit">원</span>
+            </div>
+            <p class="field-tip"><i class="fas fa-info-circle"></i> 입찰보증금(최저가÷10)이 자동 계산됩니다</p>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>희망 입찰가 <span class="required">*</span></label>
+          <div class="input-addon">
+            <input type="number" id="bidPrice" placeholder="예: 110000000" oninput="calcAll()" />
+            <span class="addon-unit">원</span>
+          </div>
+          <div class="auto-calc-row" id="bidCalcRow" style="display:none">
+            <div class="auto-item">
+              <span class="auto-label">입찰보증금</span>
+              <span class="auto-value" id="displayDeposit">-</span>
+            </div>
+            <div class="auto-item">
+              <span class="auto-label">감정가 대비</span>
+              <span class="auto-value" id="displayBidRatio">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 대출 비율 슬라이더 -->
+        <div class="field-group">
+          <label>대출 비율 &nbsp;<span class="slider-value-badge" id="loanRatioDisplay">80%</span></label>
+          <input type="range" id="loanRatio" min="0" max="100" step="5" value="80" class="range-slider" oninput="updateLoanRatio()" />
+          <div class="range-labels"><span>0%</span><span>50%</span><span>100%</span></div>
+          <p class="field-tip"><i class="fas fa-university"></i> 일반적으로 낙찰가의 70~80% 대출 가능 (개인 조건에 따라 다름)</p>
+          <div class="auto-calc-row" id="loanCalcRow" style="display:none">
+            <div class="auto-item">
+              <span class="auto-label">대출금</span>
+              <span class="auto-value" id="displayLoanAmt">-</span>
+            </div>
+            <div class="auto-item">
+              <span class="auto-label">납부 잔금</span>
+              <span class="auto-value" id="displayRemaining">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 취득세 구분 -->
+        <div class="field-group">
+          <label>취득세 구분 <span class="required">*</span></label>
+          <select id="acquisitionTaxType" onchange="calcAll()">
+            <optgroup label="🏠 개인 (주택)">
+              <option value="0.011">무주택 → 1주택 (1.1%)</option>
+              <option value="0.011">1주택 → 2주택 (1.1%)</option>
+              <option value="0.08">2주택 → 3주택 (8%)</option>
+              <option value="0.12">3주택 → 4주택 이상 (12%)</option>
+              <option value="0.011">공시지가 1억 미만 (1.1%)</option>
+            </optgroup>
+            <optgroup label="🏪 비주거·상업">
+              <option value="0.046">오피스텔·상가·비주거 (4.6%)</option>
+              <option value="0.12">공시지가 1억 이상 (12%)</option>
+            </optgroup>
+            <optgroup label="🏢 법인">
+              <option value="0.046">법인 – 오피스텔·상가 (4.6%)</option>
+              <option value="0.12">법인 – 공시지가 1억 이상 (12%)</option>
+            </optgroup>
+          </select>
+          <p class="field-tip"><i class="fas fa-exclamation-circle"></i> 현재 보유 주택 수와 취득 물건 위치에 따라 세율이 달라집니다 — 본인 상황에 맞게 선택하세요</p>
+        </div>
+
+        <!-- 추가 비용 -->
+        <div class="field-group">
+          <label>명도비 (이사비·소송비)</label>
+          <div class="input-addon">
+            <input type="number" id="evictionCost" placeholder="자동계산 (평당 10만원)" oninput="calcAll()" />
+            <span class="addon-unit">원</span>
+          </div>
+          <p class="field-tip"><i class="fas fa-sync-alt"></i> 면적 입력 시 평당 10만원으로 자동 계산 (직접 수정 가능)</p>
+        </div>
+
+        <div class="field-row-2">
+          <div class="field-group">
+            <label>인테리어·수리·청소</label>
+            <div class="input-addon">
+              <input type="number" id="repairCost" placeholder="자동계산 (평당 20만원)" oninput="calcAll()" />
+              <span class="addon-unit">원</span>
+            </div>
+            <p class="field-tip"><i class="fas fa-sync-alt"></i> 면적 입력 시 평당 20만원 자동 계산</p>
+          </div>
+          <div class="field-group">
+            <label>법무사·기타 자문비</label>
+            <div class="input-addon">
+              <input type="number" id="legalCost" value="1000000" oninput="calcAll()" />
+              <span class="addon-unit">원</span>
+            </div>
+            <p class="field-tip"><i class="fas fa-info-circle"></i> 통상 100만원 기준 (변동 가능)</p>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>미납 관리비</label>
+          <div class="input-addon">
+            <input type="number" id="unpaidMgmt" placeholder="0" oninput="calcAll()" />
+            <span class="addon-unit">원</span>
+          </div>
+          <p class="field-tip"><i class="fas fa-info-circle"></i> 임장(현장 방문) 시 관리사무소에서 확인한 금액 입력</p>
+        </div>
+
+        <div class="field-group">
+          <label>인수해야 할 선순위 보증금</label>
+          <div class="input-addon">
+            <input type="number" id="seniorDeposit" placeholder="0" oninput="calcAll()" />
+            <span class="addon-unit">원</span>
+          </div>
+          <p class="field-tip"><i class="fas fa-exclamation-triangle" style="color:#e67e22"></i> 낙찰 후 내가 떠안아야 하는 임차인 보증금 (권리분석 필수 확인 항목)</p>
+        </div>
+
+      </div>
+    </div><!-- /card -->
+
+    <!-- ─── BLOCK 3: 수입·매도 조건 ─── -->
+    <div class="card">
+      <div class="card-header">
+        <span class="step-badge">STEP 3</span>
+        <h2 class="card-title"><i class="fas fa-hand-holding-usd"></i> 수입 & 매도 조건</h2>
+        <p class="card-desc">임대 수입과 매도 계획을 입력하면 세금·순수익이 자동으로 계산됩니다.</p>
+      </div>
+      <div class="card-body">
+
+        <div class="field-row-2">
+          <div class="field-group">
+            <label>전세 / 월세 보증금</label>
+            <div class="input-addon">
+              <input type="number" id="rentalDeposit" placeholder="0" oninput="calcAll()" />
+              <span class="addon-unit">원</span>
+            </div>
+            <p class="field-tip"><i class="fas fa-info-circle"></i> 전세 계약이면 전세금 전액 입력</p>
+          </div>
+          <div class="field-group">
+            <label>월세</label>
+            <div class="input-addon">
+              <input type="number" id="monthlyRent" placeholder="0" oninput="calcAll()" />
+              <span class="addon-unit">원/월</span>
+            </div>
+            <p class="field-tip"><i class="fas fa-info-circle"></i> 월세 계약 시 월 수령액 입력</p>
+          </div>
+        </div>
+
+        <!-- 대출 금리 슬라이더 -->
+        <div class="field-group">
+          <label>대출 금리 &nbsp;<span class="slider-value-badge" id="interestRateDisplay">4.0%</span></label>
+          <input type="range" id="interestRate" min="1" max="10" step="0.5" value="4" class="range-slider" oninput="updateInterestRate()" />
+          <div class="range-labels"><span>1%</span><span>5%</span><span>10%</span></div>
+          <p class="field-tip"><i class="fas fa-university"></i> 현재 시중은행 기준금리 3~5% 수준 (DSR 조건에 따라 다름)</p>
+        </div>
+
+        <!-- 보유 기간 -->
+        <div class="field-group">
+          <label>예상 보유 기간</label>
+          <div class="btn-toggle-group" id="holdingPeriodGroup">
+            <button class="btn-toggle" data-value="6" onclick="selectHolding(this)">6개월</button>
+            <button class="btn-toggle active" data-value="12" onclick="selectHolding(this)">1년</button>
+            <button class="btn-toggle" data-value="24" onclick="selectHolding(this)">2년</button>
+            <button class="btn-toggle" data-value="36" onclick="selectHolding(this)">3년</button>
+            <button class="btn-toggle" data-value="60" onclick="selectHolding(this)">5년</button>
+          </div>
+          <p class="field-tip"><i class="fas fa-exclamation-circle"></i> 보유 기간은 양도세율에 직접적인 영향을 줍니다 (2년 이상 보유 시 일반세율 적용)</p>
+        </div>
+
+        <div class="field-group">
+          <label>예상 매도 금액 <span class="required">*</span></label>
+          <div class="input-addon">
+            <input type="number" id="salePrice" placeholder="예: 170000000" oninput="calcAll()" />
+            <span class="addon-unit">원</span>
+          </div>
+          <p class="field-tip"><i class="fas fa-info-circle"></i> 나중에 팔 때 예상하는 금액 (시세 + 리모델링 후 가치 상승 반영)</p>
+        </div>
+
+        <!-- ▼ 양도세 구분 — 핵심 개선 영역 -->
+        <div class="tax-select-block">
+          <label>양도세 구분 <span class="required">*</span>
+            <button class="btn-tax-guide" onclick="openTaxModal()"><i class="fas fa-table"></i> 세율표 보기</button>
+          </label>
+          <select id="transferTaxType" onchange="calcAll()">
+            <optgroup label="📋 개인 양도소득세 (보유기간별 — 자동 추천)">
+              <option value="auto">🤖 자동 계산 (보유기간 기준)</option>
+            </optgroup>
+            <optgroup label="🏠 개인 — 직접 선택">
+              <option value="0.70">1년 미만 보유 (70%)</option>
+              <option value="0.60">1년 이상~2년 미만 (60%)</option>
+              <option value="progressive">2년 이상 — 누진세율 (6%~45%)</option>
+            </optgroup>
+            <optgroup label="💼 개인매매사업자 (종합소득세)">
+              <option value="0.06">순수익 1,400만원 이하 (6%)</option>
+              <option value="0.15">순수익 5,000만원 이하 (15%)</option>
+              <option value="0.24">순수익 8,800만원 이하 (24%)</option>
+              <option value="0.35">순수익 1억5,000만원 이하 (35%)</option>
+              <option value="0.38">순수익 3억원 이하 (38%)</option>
+              <option value="0.40">순수익 5억원 이하 (40%)</option>
+            </optgroup>
+            <optgroup label="🏢 법인">
+              <option value="0.30">법인 – 주택 (30%)</option>
+              <option value="0.10">법인 – 비주택 (10%)</option>
+            </optgroup>
+          </select>
+          <p class="field-tip tip-warning"><i class="fas fa-lightbulb"></i> <strong>"자동 계산"</strong>을 선택하면 보유기간에 맞는 세율이 자동으로 적용됩니다 — 정확한 신고는 세무사 상담 필요</p>
+        </div>
+
+        <!-- ▼ 양도세 미리보기 박스 (핵심 신규 기능) -->
+        <div class="tax-preview-box" id="taxPreviewBox">
+          <div class="tax-preview-title">
+            <i class="fas fa-calculator"></i> 양도세 미리계산 결과
+            <span class="preview-badge">자동계산</span>
+          </div>
+          <div class="tax-preview-grid">
+            <div class="tax-preview-item">
+              <span class="tp-label">양도차익</span>
+              <span class="tp-value" id="tpGain">-</span>
+            </div>
+            <div class="tax-preview-item">
+              <span class="tp-label">장기보유특별공제</span>
+              <span class="tp-value green" id="tpLthc">-</span>
+            </div>
+            <div class="tax-preview-item">
+              <span class="tp-label">기본공제 (연 250만원)</span>
+              <span class="tp-value green" id="tpBasic">-</span>
+            </div>
+            <div class="tax-preview-item">
+              <span class="tp-label">과세표준</span>
+              <span class="tp-value" id="tpBase">-</span>
+            </div>
+            <div class="tax-preview-item">
+              <span class="tp-label">적용 세율</span>
+              <span class="tp-value" id="tpRate">-</span>
+            </div>
+            <div class="tax-preview-item highlight-row">
+              <span class="tp-label">예상 양도세</span>
+              <span class="tp-value red" id="tpTaxAmt">-</span>
+            </div>
+          </div>
+          <div class="tax-preview-note">
+            <i class="fas fa-info-circle"></i>
+            이 계산은 <strong>사전 예측용 참고 수치</strong>입니다. 1세대 1주택 비과세, 실거주 기간, 장기보유특별공제 세부 조건은 개인 상황마다 다릅니다. 정확한 세금은 세무사 또는 홈택스에서 확인하세요.
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /card -->
+
+    <!-- ─── 계산 버튼 ─── -->
+    <div class="btn-calc-area">
+      <button class="btn-calc-main" onclick="calcAll()">
+        <i class="fas fa-calculator"></i> 수익률 계산하기
+      </button>
+      <button class="btn-reset" onclick="resetAll()">
+        <i class="fas fa-redo"></i> 초기화
+      </button>
+    </div>
+
+  </div><!-- /input-panel -->
+
+  <!-- RIGHT: 결과 패널 -->
+  <div class="result-panel" id="resultPanel">
+
+    <div class="result-placeholder" id="resultPlaceholder">
+      <div class="placeholder-inner">
+        <i class="fas fa-chart-pie placeholder-icon"></i>
+        <p class="placeholder-title">입력하면 자동으로 계산됩니다</p>
+        <p class="placeholder-desc">좌측에서 물건 정보와 입찰가를 입력하면<br>아래에 수익률 분석 결과가 실시간으로 나타납니다</p>
+      </div>
+    </div>
+
+    <!-- 결과 카드 영역 (계산 후 표시) -->
+    <div class="result-content" id="resultContent" style="display:none">
+
+      <!-- 핵심 요약 3종 -->
+      <div class="summary-cards">
+        <div class="sum-card blue">
+          <div class="sum-icon"><i class="fas fa-won-sign"></i></div>
+          <div class="sum-body">
+            <span class="sum-label">자기자본 투입액</span>
+            <span class="sum-val" id="rOwnCapital">-</span>
+            <span class="sum-sub">실제 내 돈이 얼마 들어가나</span>
+          </div>
+        </div>
+        <div class="sum-card green">
+          <div class="sum-icon"><i class="fas fa-arrow-trend-up"></i></div>
+          <div class="sum-body">
+            <span class="sum-label">세전 순수익</span>
+            <span class="sum-val" id="rNetProfit">-</span>
+            <span class="sum-sub">매도차익 − 총 비용</span>
+          </div>
+        </div>
+        <div class="sum-card orange">
+          <div class="sum-icon"><i class="fas fa-piggy-bank"></i></div>
+          <div class="sum-body">
+            <span class="sum-label">세후 순수익</span>
+            <span class="sum-val" id="rAfterTaxProfit">-</span>
+            <span class="sum-sub">세금 납부 후 실제 남는 돈</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 수익률 게이지 -->
+      <div class="card result-card">
+        <div class="card-header no-border">
+          <h3 class="card-title"><i class="fas fa-tachometer-alt"></i> 투자수익률</h3>
+        </div>
+        <div class="card-body gauge-area">
+          <div class="gauge-wrap">
+            <svg viewBox="0 0 200 110" class="gauge-svg">
+              <path d="M10,100 A90,90 0 0,1 190,100" fill="none" stroke="#e9ecef" stroke-width="18" stroke-linecap="round"/>
+              <path d="M10,100 A90,90 0 0,1 190,100" fill="none" stroke="url(#gaugeGrad)" stroke-width="18" stroke-linecap="round"
+                    stroke-dasharray="283" stroke-dashoffset="283" id="gaugeFill" style="transition:stroke-dashoffset 1s ease"/>
+              <defs>
+                <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#e74c3c"/>
+                  <stop offset="40%" stop-color="#f39c12"/>
+                  <stop offset="70%" stop-color="#27ae60"/>
+                  <stop offset="100%" stop-color="#16a085"/>
+                </linearGradient>
+              </defs>
+              <text x="100" y="88" text-anchor="middle" font-size="22" font-weight="800" fill="#1a2b4a" id="gaugeText">0%</text>
+              <text x="100" y="106" text-anchor="middle" font-size="9" fill="#8395a7" id="gaugeTaxLabel">세전 수익률</text>
+            </svg>
+          </div>
+          <div class="roi-compare">
+            <div class="roi-item">
+              <span class="roi-label">세전 수익률</span>
+              <span class="roi-val" id="rROI">-</span>
+            </div>
+            <div class="roi-divider"></div>
+            <div class="roi-item highlight">
+              <span class="roi-label">세후 수익률</span>
+              <span class="roi-val orange" id="rAfterTaxROI">-</span>
+            </div>
+          </div>
+          <div class="grade-badge-wrap">
+            <span class="grade-badge" id="gradeBadge">계산 중...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 세전 vs 세후 비교 카드 -->
+      <div class="card result-card">
+        <div class="card-header no-border">
+          <h3 class="card-title"><i class="fas fa-balance-scale"></i> 세전 vs 세후 순수익 비교</h3>
+          <p class="card-desc">실제 세금을 내고 나면 얼마나 남는지 한눈에 확인하세요</p>
+        </div>
+        <div class="card-body">
+          <div class="compare-bar-wrap">
+            <div class="compare-bar-row">
+              <span class="cbar-label">세전 순수익</span>
+              <div class="cbar-track"><div class="cbar-fill blue" id="barBeforeTax" style="width:0%"></div></div>
+              <span class="cbar-amt" id="cBarBeforeAmt">-</span>
+            </div>
+            <div class="compare-bar-row">
+              <span class="cbar-label">예상 양도세</span>
+              <div class="cbar-track"><div class="cbar-fill red" id="barTax" style="width:0%"></div></div>
+              <span class="cbar-amt red" id="cBarTaxAmt">-</span>
+            </div>
+            <div class="compare-bar-row">
+              <span class="cbar-label"><strong>세후 순수익</strong></span>
+              <div class="cbar-track"><div class="cbar-fill green" id="barAfterTax" style="width:0%"></div></div>
+              <span class="cbar-amt green" id="cBarAfterAmt">-</span>
+            </div>
+          </div>
+          <div class="tax-saving-tip" id="taxSavingTip" style="display:none">
+            <i class="fas fa-lightbulb"></i>
+            <span id="taxSavingTipText"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 상세 비용 분석표 -->
+      <div class="card result-card">
+        <div class="card-header no-border">
+          <h3 class="card-title"><i class="fas fa-list-alt"></i> 상세 비용 분석표</h3>
+        </div>
+        <div class="card-body">
+          <table class="detail-table">
+            <tbody>
+              <tr class="table-section-header"><td colspan="2">[ 초기 투자비용 ]</td></tr>
+              <tr><td>낙찰가 (희망입찰가)</td><td id="tBidPrice">-</td></tr>
+              <tr class="sub-row"><td>— 은행 대출금</td><td id="tLoanAmt" class="deduct">-</td></tr>
+              <tr class="sub-row"><td>— 입찰보증금</td><td id="tBidDeposit">-</td></tr>
+              <tr class="sub-row"><td>— 납부 잔금 (자기자본)</td><td id="tFinalPayment">-</td></tr>
+              <tr class="spacer"><td colspan="2"></td></tr>
+              <tr class="table-section-header"><td colspan="2">[ 추가 비용 합계 ]</td></tr>
+              <tr><td>취득세</td><td id="tAcqTax">-</td></tr>
+              <tr><td>명도비</td><td id="tEviction">-</td></tr>
+              <tr><td>인테리어·수리·청소</td><td id="tRepair">-</td></tr>
+              <tr><td>법무사·기타</td><td id="tLegal">-</td></tr>
+              <tr><td>미납 관리비</td><td id="tUnpaid">-</td></tr>
+              <tr><td>인수 선순위 보증금</td><td id="tSeniorDep">-</td></tr>
+              <tr class="total-row"><td>총 추가비용 (a)</td><td id="tTotalCost">-</td></tr>
+              <tr class="spacer"><td colspan="2"></td></tr>
+              <tr class="table-section-header"><td colspan="2">[ 보유 중 지출 ]</td></tr>
+              <tr><td>월 이자 (거치식)</td><td id="tMonthlyInterest">-</td></tr>
+              <tr><td>보유기간 이자 합계</td><td id="tTotalInterest">-</td></tr>
+              <tr><td>중개수수료 (0.4%)</td><td id="tBrokerage">-</td></tr>
+              <tr class="total-row"><td>지출 합계 (b)</td><td id="tTotalExpense">-</td></tr>
+              <tr class="spacer"><td colspan="2"></td></tr>
+              <tr class="table-section-header"><td colspan="2">[ 수입 ]</td></tr>
+              <tr><td>전세·월세 보증금</td><td id="tRentalDeposit">-</td></tr>
+              <tr><td>보유기간 월세 수입</td><td id="tRentalIncome">-</td></tr>
+              <tr class="spacer"><td colspan="2"></td></tr>
+              <tr class="table-section-header"><td colspan="2">[ 수익 계산 ]</td></tr>
+              <tr><td>매도 금액</td><td id="tSalePrice">-</td></tr>
+              <tr class="highlight-row"><td><strong>자기자본 투입액</strong></td><td id="tOwnCapital">-</td></tr>
+              <tr><td>총 투자금액 (낙찰가 + 비용)</td><td id="tTotalInvest">-</td></tr>
+              <tr class="total-row"><td><strong>세전 순수익</strong></td><td id="tNetProfit">-</td></tr>
+              <tr class="tax-row"><td>예상 양도세</td><td id="tTransferTax" class="red">-</td></tr>
+              <tr class="grand-total-row"><td><strong>🎯 세후 순수익 (최종)</strong></td><td id="tAfterTaxProfit">-</td></tr>
+              <tr class="roi-row"><td>투자금 대비 세전 수익률</td><td id="tROI">-</td></tr>
+              <tr class="roi-row"><td><strong>투자금 대비 세후 수익률</strong></td><td id="tAfterTaxROI">-</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 상담 CTA -->
+      <div class="cta-banner">
+        <div class="cta-content">
+          <div class="cta-text">
+            <span class="cta-title">분석 결과를 전문가와 함께 검토하고 싶으신가요?</span>
+            <span class="cta-desc">대장옥션 경매 전문 컨설턴트가 물건 선정부터 낙찰 후 전략까지 1:1로 안내해 드립니다</span>
+          </div>
+          <a href="tel:010-0000-0000" class="cta-btn"><i class="fas fa-phone-alt"></i> 무료 상담 신청</a>
+        </div>
+      </div>
+
+    </div><!-- /result-content -->
+  </div><!-- /result-panel -->
+
+</main><!-- /main -->
+
+<!-- ====== 양도세율 모달 ====== -->
+<div class="modal-overlay" id="taxModal" onclick="closeTaxModal(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3><i class="fas fa-table"></i> 취득세 / 양도세 세율 참고표</h3>
+      <button class="modal-close" onclick="closeTaxModal(null)"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <h4 class="modal-section-title">📋 개인 취득세</h4>
+      <table class="ref-table">
+        <tr><th>구분</th><th>세율</th></tr>
+        <tr><td>무주택 → 1주택</td><td>1.1%</td></tr>
+        <tr><td>1주택 → 2주택</td><td>1.1%</td></tr>
+        <tr><td>2주택 → 3주택 (규제지역 8%)</td><td>8%</td></tr>
+        <tr><td>3주택 이상</td><td>12%</td></tr>
+        <tr><td>공시지가 1억 미만</td><td>1.1%</td></tr>
+        <tr><td>오피스텔·상가·비주거</td><td>4.6%</td></tr>
+      </table>
+
+      <h4 class="modal-section-title" style="margin-top:1.5rem">📋 개인 양도소득세 (보유기간별)</h4>
+      <table class="ref-table">
+        <tr><th>보유기간</th><th>세율</th></tr>
+        <tr><td>1년 미만</td><td class="red">70%</td></tr>
+        <tr><td>1년 이상 ~ 2년 미만</td><td class="red">60%</td></tr>
+        <tr><td>2년 이상 → 누진세율</td><td>6%~45%</td></tr>
+      </table>
+
+      <h4 class="modal-section-title" style="margin-top:1.5rem">📋 2년 이상 보유 — 누진세율 과세표준</h4>
+      <table class="ref-table">
+        <tr><th>과세표준 (양도차익)</th><th>세율</th><th>누진공제</th></tr>
+        <tr><td>1,400만원 이하</td><td>6%</td><td>-</td></tr>
+        <tr><td>5,000만원 이하</td><td>15%</td><td>126만원</td></tr>
+        <tr><td>8,800만원 이하</td><td>24%</td><td>576만원</td></tr>
+        <tr><td>1억5,000만원 이하</td><td>35%</td><td>1,544만원</td></tr>
+        <tr><td>3억원 이하</td><td>38%</td><td>1,994만원</td></tr>
+        <tr><td>5억원 이하</td><td>40%</td><td>2,594만원</td></tr>
+        <tr><td>10억원 이하</td><td>42%</td><td>3,594만원</td></tr>
+        <tr><td>10억원 초과</td><td>45%</td><td>6,594만원</td></tr>
+      </table>
+
+      <h4 class="modal-section-title" style="margin-top:1.5rem">📋 장기보유특별공제 (일반)</h4>
+      <table class="ref-table">
+        <tr><th>보유기간</th><th>공제율</th></tr>
+        <tr><td>3년 이상</td><td>6%</td></tr>
+        <tr><td>4년 이상</td><td>8%</td></tr>
+        <tr><td>5년 이상</td><td>10%</td></tr>
+        <tr><td>6년 이상</td><td>12%</td></tr>
+        <tr><td>7년 이상</td><td>14%</td></tr>
+        <tr><td>10년 이상</td><td>20%</td></tr>
+        <tr><td>15년 이상</td><td>30%</td></tr>
+        <tr><td>1세대1주택 거주요건 충족</td><td class="green">최대 80%</td></tr>
+      </table>
+
+      <div class="modal-note">
+        <i class="fas fa-exclamation-triangle"></i>
+        위 세율표는 2025~2026년 기준 참고용입니다. 정확한 세금은 홈택스 모의계산 또는 세무사 상담을 통해 확인하시기 바랍니다.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== FOOTER ====== -->
+<footer class="site-footer">
+  <div class="container">
+    <p>본 분석표는 <strong>참고용 계산 도구</strong>입니다. 실제 투자 결정 전 반드시 전문가 상담을 받으시기 바랍니다.</p>
+    <p>정확한 세금 신고는 세무사 또는 홈택스(hometax.go.kr)에서 확인하세요. &nbsp;|&nbsp; © 2026 대장옥션</p>
+  </div>
+</footer>
+
+<script src="calc.js"></script>
+</body>
+</html>
