@@ -157,7 +157,7 @@ function toggleRef(id) {
    TAB 1: 수익률 분석표
    ===================================================== */
 let _propType = '아파트';
-let _holdMonths = 12;
+let _holdMonths = 3;
 
 function selectPropType(btn) {
   document.querySelectorAll('#propertyTypeGroup .btn-toggle').forEach(b => b.classList.remove('active'));
@@ -414,8 +414,8 @@ function roiReset() {
   $$('r_loanPct').value = 70; set('r_loanPctDisp', '70%');
   $$('r_rate').value = 4; set('r_rateDisp', '4.0%');
   document.querySelectorAll('#propertyTypeGroup .btn-toggle').forEach((b,i) => b.classList.toggle('active', i===0));
-  document.querySelectorAll('#holdGroup .btn-toggle').forEach(b => b.classList.toggle('active', b.dataset.val==='12'));
-  _holdMonths = 12; _propType = '아파트';
+  document.querySelectorAll('#holdGroup .btn-toggle').forEach(b => b.classList.toggle('active', b.dataset.val==='3'));
+  _holdMonths = 3; _propType = '아파트';
   $$('r_acqTaxRate').selectedIndex = 0;
   $$('r_taxType').selectedIndex = 0;
   $$('r_bidAutoRow').style.display = 'none';
@@ -1466,6 +1466,17 @@ function _calcRoiAt(bid, sale, loanPct, acqRate, rate, hold,
   const afterNet  = netProfit - txResult.tax;
   const afterROI  = ownCap > 0 ? afterNet / ownCap : 0;
   return { ownCap, afterNet, afterROI };
+}
+
+function toggleRevCalc() {
+  const body = $$('revCalcBody');
+  const icon = $$('revToggleIcon');
+  const hint = $$('revHint');
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  if (icon) icon.innerHTML = isOpen ? '<i class="fas fa-chevron-down"></i>' : '<i class="fas fa-chevron-up"></i>';
+  if (hint) hint.style.display = isOpen ? '' : 'none';
 }
 
 function rvApplyBid() {

@@ -200,9 +200,24 @@ input::placeholder{color:var(--g4)}
 .taxr td{color:var(--red)}
 .grand td{background:linear-gradient(135deg,#0f172a,#1e3a5f);color:#fff!important;font-size:.88rem;font-weight:800!important}
 .grand td:last-child{color:#4ade80!important}
-.hl td{background:#fffbeb;font-weight:600}
+.hl td{background:#fff7ed;font-weight:700;border-left:3px solid #f97316}
+.hl td:last-child{color:#ea580c!important}
 .roitr td{background:#f0fdf4}
+
+/* ── 자기자본 투입 항목 강조 ── */
+.own-cap td{background:#fff7ed;border-left:3px solid #f97316}
+.own-cap td:first-child{color:#9a3412;font-size:.79rem}
+.own-cap td:last-child{color:#c2410c!important;font-weight:700}
+.own-cap-label{display:inline-flex;align-items:center;gap:.3rem}
+.own-cap-label::before{content:'●';color:#f97316;font-size:.6rem;line-height:1}
+.own-cap-badge{display:inline-block;font-size:.6rem;font-weight:800;background:#f97316;color:#fff;padding:.05rem .3rem;border-radius:3px;margin-left:.3rem;vertical-align:middle;letter-spacing:.03em}
 .roitr td:last-child{color:var(--green)!important}
+
+/* ── 자기자본 범례 ── */
+.own-cap-legend{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;font-size:.72rem;color:var(--g6);background:#fff7ed;border:1px solid #fed7aa;border-radius:7px;padding:.45rem .75rem;margin-bottom:.6rem;line-height:1.5}
+.legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#f97316;flex-shrink:0}
+.legend-bank{display:inline-block;width:10px;height:10px;border-radius:50%;background:#94a3b8;flex-shrink:0;margin-left:.6rem}
+.own-cap-legend b{color:#c2410c}
 .sp{height:5px}
 .sp td{border:none}
 .red{color:var(--red)}
@@ -456,7 +471,11 @@ input::placeholder{color:var(--g4)}
 
 /* ── 역산 카드 ── */
 .card-reverse{border-left:4px solid var(--gold);}
-.step-badge-rev{background:linear-gradient(135deg,var(--gold),#f59e0b);color:var(--navy)}
+.card-header-toggle{display:flex;align-items:center;gap:.55rem;transition:background .15s}
+.card-header-toggle:hover{background:#fffbeb}
+.rev-toggle-icon{margin-left:auto;color:var(--gold);font-size:.85rem;transition:transform .2s}
+.rev-collapsed-hint{font-size:.73rem;color:#92400e;background:#fffbeb;border-top:1px dashed #fde68a;padding:.45rem 1.4rem;border-radius:0 0 10px 10px;display:flex;align-items:center;gap:.4rem}
+.rev-collapsed-hint::before{content:'\f0eb';font-family:"Font Awesome 6 Free";font-weight:900;color:var(--gold);font-size:.7rem}.step-badge-rev{background:linear-gradient(135deg,var(--gold),#f59e0b);color:var(--navy)}
 .rv-result-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
