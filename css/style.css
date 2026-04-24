@@ -57,7 +57,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#eef2f7;color:var(--text);
 .result-panel{position:sticky;top:68px}
 
 /* ── 계산기 레이아웃 ── */
-.calc-layout{max-width:680px;padding-top:1.8rem;padding-bottom:3rem}
+.calc-layout{max-width:680px;padding-top:1.8rem;padding-bottom:3rem;margin-left:auto;margin-right:auto}
 .calc-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--g3);overflow:hidden}
 .calc-header{font-size:1.1rem;font-weight:800;color:var(--navy);padding:1.2rem 1.5rem .2rem;display:flex;align-items:center;gap:.5rem}
 .calc-header i{color:var(--blue)}
@@ -365,17 +365,17 @@ input::placeholder{color:var(--g4)}
   .cta-box{flex-direction:column;text-align:center}
   .btn-cta{width:100%;justify-content:center}
   .cbar-row{grid-template-columns:65px 1fr auto}
-  /* 모바일 탭: justify 해제 → 좌측 스크롤 */
-  .tab-nav-inner{justify-content:flex-start}
-  .tab-btn{min-width:64px;padding:.6rem .65rem;font-size:.67rem}
-  .tab-nav-scroll-hint{display:flex}
+  /* 모바일 탭: 2줄 wrap */
+  .tab-nav-inner{justify-content:center;flex-wrap:wrap;overflow-x:visible}
+  .tab-btn{min-width:calc(25% - 2px);padding:.55rem .3rem;font-size:.65rem}
+  .tab-nav-scroll-hint{display:none}
   .tab-nav{position:relative}
 }
 /* 태블릿 */
 @media(max-width:768px) and (min-width:601px){
-  .tab-nav-inner{justify-content:flex-start}
-  .tab-btn{min-width:68px;padding:.65rem .8rem;font-size:.7rem}
-  .tab-nav-scroll-hint{display:flex}
+  .tab-nav-inner{justify-content:center;flex-wrap:wrap;overflow-x:visible}
+  .tab-btn{min-width:calc(16.66% - 2px);padding:.6rem .5rem;font-size:.68rem}
+  .tab-nav-scroll-hint{display:none}
   .tab-nav{position:relative}
 }
 
@@ -497,7 +497,7 @@ input::placeholder{color:var(--g4)}
 .card-header-toggle{display:flex;align-items:center;gap:.55rem;transition:background .15s}
 .card-header-toggle:hover{background:#fffbeb}
 .rev-toggle-icon{margin-left:auto;color:var(--gold);font-size:.85rem;transition:transform .2s}
-.rev-collapsed-hint{font-size:.73rem;color:#92400e;background:#fffbeb;border-top:1px dashed #fde68a;padding:.45rem 1.4rem;border-radius:0 0 10px 10px;display:flex;align-items:center;gap:.4rem}
+.rev-collapsed-hint{font-size:.73rem;color:#92400e;background:#fffbeb;border-top:1px dashed #fde68a;padding:.45rem 1.4rem;border-radius:0 0 10px 10px;display:flex;align-items:center;gap:.4rem;cursor:pointer;transition:background .15s}.rev-collapsed-hint:hover{background:#fef3c7}
 .rev-collapsed-hint::before{content:'\f0eb';font-family:"Font Awesome 6 Free";font-weight:900;color:var(--gold);font-size:.7rem}.step-badge-rev{background:linear-gradient(135deg,var(--gold),#f59e0b);color:var(--navy)}
 .rv-result-grid{
   display:grid;
