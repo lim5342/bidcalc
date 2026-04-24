@@ -64,6 +64,7 @@
       <i class="fas fa-receipt"></i><span>양도세</span>
     </button>
   </div>
+  <div class="tab-nav-scroll-hint" id="tabScrollHint"><i class="fas fa-chevron-right"></i></div>
 </nav>
 
 <!-- ===== 탭 콘텐츠 래퍼 ===== -->
@@ -251,7 +252,7 @@
           <h2 class="card-title"><i class="fas fa-bullseye"></i> 목표 수익률로 적정 입찰가 역산</h2>
           <span class="rev-toggle-icon" id="revToggleIcon"><i class="fas fa-chevron-down"></i></span>
         </div>
-        <div class="rev-collapsed-hint" id="revHint">클릭하면 역산 기능을 사용할 수 있습니다</div>
+        <div class="rev-collapsed-hint" id="revHint"><i class="fas fa-chevron-down" style="margin-right:.3rem"></i> 펼쳐서 입찰가 역산 사용하기</div>
         <div class="card-body" id="revCalcBody" style="display:none;">
           <div class="field-row2">
             <div class="field-group">
@@ -1163,13 +1164,23 @@
           <div class="field-row2">
             <div class="field-group">
               <label>취득일 <span class="req">*</span></label>
-              <input type="date" id="tf_acqDate" onchange="tfCalc()"/>
-              <p class="tip"><i class="fas fa-info-circle"></i> 등기 접수일 기준</p>
+              <div class="date-text-wrap">
+                <input type="text" id="tf_acqDate" placeholder="예: 2022.05.20" maxlength="10"
+                  oninput="tfDateFormat(this);tfCalc()" autocomplete="off" inputmode="numeric"
+                  class="date-text-input"/>
+                <span class="date-text-hint" id="tf_acqDate_hint"></span>
+              </div>
+              <p class="tip"><i class="fas fa-info-circle"></i> 등기 접수일 기준 (예: 2022.05.20)</p>
             </div>
             <div class="field-group">
               <label>양도일 <span class="req">*</span></label>
-              <input type="date" id="tf_saleDate" onchange="tfCalc()"/>
-              <p class="tip"><i class="fas fa-info-circle"></i> 잔금 청산일 또는 등기 접수일 중 빠른 날</p>
+              <div class="date-text-wrap">
+                <input type="text" id="tf_saleDate" placeholder="예: 2025.03.10" maxlength="10"
+                  oninput="tfDateFormat(this);tfCalc()" autocomplete="off" inputmode="numeric"
+                  class="date-text-input"/>
+                <span class="date-text-hint" id="tf_saleDate_hint"></span>
+              </div>
+              <p class="tip"><i class="fas fa-info-circle"></i> 잔금 청산일 또는 등기 접수일 중 빠른 날 (예: 2025.03.10)</p>
             </div>
           </div>
           <!-- 보유기간 자동 표시 -->

@@ -27,12 +27,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:#eef2f7;color:var(--text);
 
 /* ── 탭 네비 ── */
 .tab-nav{background:#fff;border-bottom:1px solid var(--g3);position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.tab-nav-inner{display:flex;overflow-x:auto;gap:0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+/* PC: 가운데 정렬 */
+.tab-nav-inner{display:flex;justify-content:center;overflow-x:auto;gap:0;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory}
 .tab-nav-inner::-webkit-scrollbar{display:none}
-.tab-btn{display:flex;flex-direction:column;align-items:center;gap:.2rem;padding:.7rem 1.1rem;border:none;background:none;font-family:inherit;font-size:.74rem;font-weight:600;color:var(--g6);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;transition:all var(--tr);min-width:72px}
+.tab-btn{display:flex;flex-direction:column;align-items:center;gap:.2rem;padding:.7rem 1.1rem;border:none;background:none;font-family:inherit;font-size:.74rem;font-weight:600;color:var(--g6);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;transition:all var(--tr);min-width:72px;scroll-snap-align:start}
 .tab-btn i{font-size:1rem}
 .tab-btn:hover{color:var(--blue);background:#f8faff}
 .tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);background:#f0f6ff}
+/* 모바일: 스크롤 힌트 화살표 */
+.tab-nav-scroll-hint{display:none;position:absolute;right:0;top:0;height:100%;width:32px;background:linear-gradient(to right,transparent,rgba(255,255,255,.95));pointer-events:none;align-items:center;justify-content:flex-end;padding-right:4px;color:var(--g5);font-size:.75rem}
 
 /* ── 탭 콘텐츠 ── */
 .tab-content-wrap{}
@@ -359,11 +362,31 @@ input::placeholder{color:var(--g4)}
   .rb-grid{grid-template-columns:1fr}
   .tp-grid{grid-template-columns:1fr}
   .tp-highlight{grid-column:span 1}
-  .tab-btn{min-width:60px;padding:.65rem .7rem;font-size:.68rem}
   .cta-box{flex-direction:column;text-align:center}
   .btn-cta{width:100%;justify-content:center}
   .cbar-row{grid-template-columns:65px 1fr auto}
+  /* 모바일 탭: justify 해제 → 좌측 스크롤 */
+  .tab-nav-inner{justify-content:flex-start}
+  .tab-btn{min-width:64px;padding:.6rem .65rem;font-size:.67rem}
+  .tab-nav-scroll-hint{display:flex}
+  .tab-nav{position:relative}
 }
+/* 태블릿 */
+@media(max-width:768px) and (min-width:601px){
+  .tab-nav-inner{justify-content:flex-start}
+  .tab-btn{min-width:68px;padding:.65rem .8rem;font-size:.7rem}
+  .tab-nav-scroll-hint{display:flex}
+  .tab-nav{position:relative}
+}
+
+/* ── 날짜 텍스트 입력 ── */
+.date-text-wrap{position:relative}
+.date-text-input{width:100%;padding:.55rem .75rem;border:1px solid var(--g3);border-radius:8px;font-family:inherit;font-size:.88rem;color:var(--navy);background:#fff;transition:border .15s;letter-spacing:.04em}
+.date-text-input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.date-text-input::placeholder{color:var(--g4);letter-spacing:0}
+.date-text-hint{display:block;font-size:.72rem;margin-top:.2rem;min-height:.9rem}
+.date-text-hint.ok{color:#16a34a}
+.date-text-hint.err{color:#dc2626}
 
 /* ── 한글 금액 표기 ── */
 .krw-display{

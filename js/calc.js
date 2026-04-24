@@ -908,9 +908,46 @@ function selTfAdj(btn) {
   tfCalc();
 }
 
-/* 날짜 차이 → 개월 수 */
+/* 날짜 텍스트 자동 포맷 (YYYY.MM.DD) */
+function tfDateFormat(inp) {
+  let v = inp.value.replace(/[^0-9]/g, '');
+  if (v.length > 8) v = v.slice(0, 8);
+  let out = '';
+  if (v.length <= 4) out = v;
+  else if (v.length <= 6) out = v.slice(0,4) + '.' + v.slice(4);
+  else out = v.slice(0,4) + '.' + v.slice(4,6) + '.' + v.slice(6);
+  inp.value = out;
+  // 힌트 표시
+  const hintId = inp.id + '_hint';
+  const hintEl = $$(hintId);
+  if (!hintEl) return;
+  const iso = _textToIso(out);
+  if (iso) {
+    hintEl.textContent = '';
+    hintEl.className = 'date-text-hint ok';
+  } else if (out.length >= 10) {
+    hintEl.textContent = '⚠ 형식 오류 (YYYY.MM.DD)';
+    hintEl.className = 'date-text-hint err';
+  } else {
+    hintEl.textContent = '';
+  }
+}
+
+/* "YYYY.MM.DD" → "YYYY-MM-DD" ISO 변환 */
+function _textToIso(str) {
+  const m = str.match(/^(\d{4})\.(\d{2})\.(\d{2})$/);
+  if (!m) return null;
+  const y = parseInt(m[1]), mo = parseInt(m[2]), d = parseInt(m[3]);
+  if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+  return `${m[1]}-${m[2]}-${m[3]}`;
+}
+
+/* 날짜 차이 → 개월 수 (ISO 또는 YYYY.MM.DD 모두 허용) */
 function _monthsBetween(d1, d2) {
-  const a = new Date(d1), b = new Date(d2);
+  const iso1 = d1.includes('.') ? _textToIso(d1) : d1;
+  const iso2 = d2.includes('.') ? _textToIso(d2) : d2;
+  if (!iso1 || !iso2) return 0;
+  const a = new Date(iso1), b = new Date(iso2);
   return (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
 }
 
@@ -976,15 +1013,17 @@ function _shortTermRate(months, isHouse) {
 }
 
 function tfCalc() {
-  const acqDate  = $$('tf_acqDate').value;
-  const salDate  = $$('tf_saleDate').value;
+  const acqRaw   = $$('tf_acqDate').value;
+  const salRaw   = $$('tf_saleDate').value;
+  const acqDate  = acqRaw.includes('.') ? (_textToIso(acqRaw) || '') : acqRaw;
+  const salDate  = salRaw.includes('.') ? (_textToIso(salRaw) || '') : salRaw;
   const acqPrice = num('tf_acqPrice');
   const salPrice = num('tf_salePrice');
   const expenses = num('tf_expenses');
 
   // 보유기간 계산 & 표시
   if (acqDate && salDate && salDate > acqDate) {
-    const months = _monthsBetween(acqDate, salDate);
+    const months = _monthsBetween(acqRaw, salRaw);
     const years  = Math.floor(months / 12);
     const rem    = months % 12;
     const holdDisp = years > 0 ? `${years}년 ${rem > 0 ? rem + '개월' : ''}`.trim() : `${months}개월`;
@@ -1031,7 +1070,7 @@ function tfCalc() {
 
   if (!acqDate || !salDate || acqPrice === 0 || salPrice === 0 || salDate <= acqDate) return;
 
-  const holdMonths = _monthsBetween(acqDate, salDate);
+  const holdMonths = _monthsBetween(acqRaw, salRaw);
   const isHouse    = _tfProp === '주택';
   const gain       = salPrice - acqPrice - expenses;
 
