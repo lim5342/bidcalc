@@ -21,6 +21,9 @@
       <span class="brand-title">부동산 종합 계산기</span>
     </div>
     <p class="header-desc">경매 낙찰부터 세금·대출·수익까지 — 한 곳에서 모두 계산하세요</p>
+    <button type="button" onclick="openConsult()" style="margin-top:14px;background:#f5a623;color:#1a1200;border:none;border-radius:10px;padding:12px 26px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(245,166,35,.35)">
+      <i class="fas fa-phone-alt"></i> 대장TV 전문가 무료 상담 신청
+    </button>
   </div>
 </header>
 
@@ -182,10 +185,11 @@
             <select id="r_acqTaxRate" onchange="roiCalc()">
               <optgroup label="👤 개인 — 주택">
                 <option value="0.011">무주택 → 1주택 (1.1%)</option>
-                <option value="0.013" data-range="6">1주택 → 2주택 · 6억 이하 (1.1%→계산)</option>
+                <option value="0.011" data-range="6">1주택 → 2주택 · 비조정 (1.1%~3%)</option>
+                <option value="0.08">1주택 → 2주택 · 조정지역 (8%)</option>
                 <option value="0.011">일시적 2주택 특례 (1.1%)</option>
-                <option value="0.08">2주택 → 3주택 조정지역 (8%)</option>
-                <option value="0.08">2주택 → 3주택 비조정 (8%)</option>
+                <option value="0.08">2주택 → 3주택 · 비조정 (8%)</option>
+                <option value="0.12">2주택 → 3주택 · 조정지역 (12%)</option>
                 <option value="0.12">3주택 이상 (12%)</option>
                 <option value="0.011">공시지가 1억 미만 (1.1%)</option>
                 <option value="0.011">공시지가 2억 미만 · 지방 (1.1%)</option>
@@ -489,7 +493,7 @@
         </div>
         <div class="cta-box">
           <div class="cta-txt"><strong>대장TV 경매 전문가와 1:1 무료 상담</strong><br><small>수강생 3,000명+ 브랜드 — 물건 선정부터 낙찰 후 수익실현까지 실전 1:1 안내</small></div>
-          <a href="https://bosstvauction.co.kr/" target="_blank" class="btn-cta"><i class="fas fa-phone-alt"></i> 무료 상담</a>
+          <button type="button" onclick="openConsult()" class="btn-cta"><i class="fas fa-phone-alt"></i> 무료 상담 신청</button>
         </div>
       </div>
     </div>
@@ -515,9 +519,11 @@
           <select id="ac_type" onchange="acCalc()">
             <optgroup label="👤 개인 — 주택 (주거용)">
               <option value="0.01,0.002,0.002">무주택 → 1주택 (합계 1.1%)</option>
-              <option value="0.01,0.002,0.002">1주택 → 2주택 · 일시적 2주택 특례 (1.1%)</option>
-              <option value="0.08,0,0">2주택 → 3주택 · 조정지역 (8%)</option>
+              <option value="0.01,0.002,0.002">1주택 → 2주택 · 비조정 (1.1%~3%)</option>
+              <option value="0.08,0,0">1주택 → 2주택 · 조정지역 (8%)</option>
+              <option value="0.01,0.002,0.002">일시적 2주택 특례 (1.1%)</option>
               <option value="0.08,0,0">2주택 → 3주택 · 비조정지역 (8%)</option>
+              <option value="0.12,0,0">2주택 → 3주택 · 조정지역 (12%)</option>
               <option value="0.12,0,0">3주택 이상 (12%)</option>
               <option value="0.01,0.002,0.002">공시지가 1억 미만 (1.1%)</option>
               <option value="0.01,0.002,0.002">공시지가 2억 미만 · 지방 (1.1%)</option>
@@ -1310,6 +1316,26 @@
             <p class="tip"><i class="fas fa-info-circle"></i> 조정지역은 1주택 비과세 거주요건 2년 필수</p>
           </div>
 
+          <!-- ★매도 시점 조정대상지역 (양도세 중과 판단 기준) -->
+          <div class="field-group">
+            <label>매도 시점 조정대상지역 여부 <span class="req">*</span></label>
+            <div class="btn-toggle-group" id="tf_saleAdjGroup">
+              <button class="btn-toggle active" data-val="no" onclick="selTfSaleAdj(this)">비규제지역</button>
+              <button class="btn-toggle" data-val="yes" onclick="selTfSaleAdj(this)">조정대상지역</button>
+            </div>
+            <p class="tip"><i class="fas fa-info-circle"></i> 양도세 중과는 <b>매도 시점</b> 기준입니다. 비규제지역은 다주택이어도 중과 없음(기본세율).</p>
+          </div>
+
+          <!-- ★다주택 중과 적용 여부 (한시 유예 반영, 조정지역일 때만 노출) -->
+          <div class="field-group" id="tf_surchargeWrap" style="display:none">
+            <label>다주택 중과 적용 여부</label>
+            <div class="btn-toggle-group" id="tf_surchargeGroup">
+              <button class="btn-toggle active" data-val="no" onclick="selTfSurcharge(this)">미적용 (유예중)</button>
+              <button class="btn-toggle" data-val="yes" onclick="selTfSurcharge(this)">적용 (+20~30%p)</button>
+            </div>
+            <p class="tip"><i class="fas fa-exclamation-triangle"></i> 다주택 중과는 <b>한시 유예(2022.5.10~)</b> 중일 수 있습니다. 매도 시점 기준 <b>국세청·세무사 확인 후</b> 적용을 선택하세요. 유예 중이면 '미적용'이 맞습니다.</p>
+          </div>
+
           <!-- 고가주택 여부 -->
           <div class="field-group" id="tf_highPriceWrap" style="display:none">
             <div class="notice-box warning">
@@ -1427,7 +1453,7 @@
 
         <div class="cta-box">
           <div class="cta-txt"><strong>양도세 신고 전 전문가 검토가 필요하신가요?</strong><br><small>1세대1주택 비과세·장기보유공제 세부 조건은 개인 상황마다 다릅니다. 대장TV 경매학원 컨설턴트와 상담하세요.</small></div>
-          <a href="https://bosstvauction.co.kr/" target="_blank" class="btn-cta"><i class="fas fa-phone-alt"></i> 무료 상담</a>
+          <button type="button" onclick="openConsult()" class="btn-cta"><i class="fas fa-phone-alt"></i> 무료 상담 신청</button>
         </div>
       </div>
     </div>
@@ -1446,5 +1472,15 @@
 </footer>
 
 <script src="js/calc.js"></script>
+<!-- 대장TV 상담 리드 수집 (Supabase 연결) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  window.DAEJANG_SUPABASE = {
+    url:     'https://hlkngiqlkumebqauiyee.supabase.co',
+    anonKey: 'sb_publishable_SA87154117_-bz2SStCeoQ_6JiFojbi',
+    source:  'bidcalc'
+  };
+</script>
+<script src="js/consult-form.js"></script>
 </body>
 </html>
