@@ -195,7 +195,7 @@ function _autoFillCosts() {
   const py = parseFloat($$('r_py').value);
   if (!isNaN(py) && py > 0) {
     const ev = $$('r_evict'); const rp = $$('r_repair');
-    if (!ev.dataset.edited || ev.value === '') ev.value = Math.floor(py * 100000 / 10000) * 10000;
+    if (!ev.dataset.edited || ev.value === '') ev.value = Math.floor(py * 50000 / 10000) * 10000;
     if (!rp.dataset.edited || rp.value === '') rp.value = Math.floor(py * 200000 / 10000) * 10000;
   }
 }
@@ -859,7 +859,9 @@ let _tfProp      = '주택';
 let _tfOneHouse  = 'yes';
 let _tfResidence = 36;   // 실거주 개월
 let _tfHouseCount = 1;
-let _tfAdj       = 'no'; // 조정대상지역
+let _tfAdj       = 'no'; // 취득 당시 조정대상지역
+let _tfSaleAdj   = 'no'; // ★매도 시점 조정대상지역 (중과 판단 기준)
+let _tfSurcharge = 'no'; // ★다주택 중과 적용 여부 (기본 미적용 = 유예 반영)
 
 function selTfProp(btn) {
   document.querySelectorAll('#tf_propGroup .btn-toggle').forEach(b => b.classList.remove('active'));
@@ -905,6 +907,33 @@ function selTfAdj(btn) {
   document.querySelectorAll('#tf_adjGroup .btn-toggle').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   _tfAdj = btn.dataset.val;
+  tfCalc();
+}
+
+/* ★매도 시점 조정지역 여부 — 양도세 중과 판단 기준 */
+function selTfSaleAdj(btn) {
+  document.querySelectorAll('#tf_saleAdjGroup .btn-toggle').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _tfSaleAdj = btn.dataset.val;
+  // 조정지역일 때만 중과 적용 토글 노출, 비규제면 중과 미적용 강제
+  const wrap = document.getElementById('tf_surchargeWrap');
+  if (wrap) {
+    if (_tfSaleAdj === 'yes') {
+      wrap.style.display = '';
+    } else {
+      wrap.style.display = 'none';
+      _tfSurcharge = 'no';
+      document.querySelectorAll('#tf_surchargeGroup .btn-toggle').forEach((b,i) => b.classList.toggle('active', i===0));
+    }
+  }
+  tfCalc();
+}
+
+/* ★다주택 중과 적용 여부 (한시 유예 반영) */
+function selTfSurcharge(btn) {
+  document.querySelectorAll('#tf_surchargeGroup .btn-toggle').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _tfSurcharge = btn.dataset.val;
   tfCalc();
 }
 
@@ -1077,7 +1106,7 @@ function tfCalc() {
   // ─── 손실이면 세금 0 ───
   if (gain <= 0) {
     _showTfResult({ gain, lthcAmt: 0, basicDed: 0, taxBase: 0, taxOnly: 0, localTax: 0, totalTax: 0, netProfit: gain, effRate: 0, rateLabel: '0%', surcharge: 0, isExempt: false, exemptDesc: '', holdMonths });
-    _buildSimTable(acqPrice, salPrice, expenses, isHouse, _tfOneHouse === 'yes', _tfResidence, _tfHouseCount, _tfAdj);
+    _buildSimTable(acqPrice, salPrice, expenses, isHouse, _tfOneHouse === 'yes', _tfResidence, _tfHouseCount, _tfSaleAdj);
     return;
   }
 
@@ -1140,9 +1169,12 @@ function tfCalc() {
     rateLabel = r.label;
   }
 
-  // 다주택 중과
-  if (_tfOneHouse === 'no' && isHouse && shortRate === null) {
-    const surchargeRate = _tfHouseCount === 2 ? 0.10 : (_tfHouseCount >= 3 ? 0.20 : 0);
+  // 다주택 중과 (조정지역 + 중과적용 선택 시에만. 비조정·유예중이면 0)
+  //  - 조정지역 2주택 +20%p / 3주택+ +30%p (현행 규정)
+  //  - 2022.5.10~ 한시 유예 중이므로 기본은 미적용, 실무자가 규제+적용 선택 시 반영
+  if (_tfOneHouse === 'no' && isHouse && shortRate === null
+      && _tfSaleAdj === 'yes' && _tfSurcharge === 'yes') {
+    const surchargeRate = _tfHouseCount === 2 ? 0.20 : (_tfHouseCount >= 3 ? 0.30 : 0);
     surcharge = Math.round(taxBase * surchargeRate);
     if (surchargeRate > 0) rateLabel += ` (+${(surchargeRate * 100).toFixed(0)}%p 중과)`;
   }
@@ -1154,7 +1186,7 @@ function tfCalc() {
   const effRate   = gain > 0 ? totalTax / gain : 0;
 
   _showTfResult({ gain, lthcAmt, basicDed, taxBase, taxOnly: taxOnly - surcharge, localTax, totalTax, netProfit, effRate, rateLabel, surcharge, isExempt, exemptDesc, taxableGain, holdMonths, shortRate, lthcRate_ });
-  _buildSimTable(acqPrice, salPrice, expenses, isHouse, _tfOneHouse === 'yes', _tfResidence, _tfHouseCount, _tfAdj);
+  _buildSimTable(acqPrice, salPrice, expenses, isHouse, _tfOneHouse === 'yes', _tfResidence, _tfHouseCount, _tfSaleAdj);
   _buildGuide({ isExempt, holdMonths, taxableGain, gain, salPrice, lthcRate_, _tfOneHouse, _tfAdj, _tfResidence });
 }
 
@@ -1260,9 +1292,9 @@ function _buildSimTable(acqPrice, salPrice, expenses, isHouse, is1House, resMont
     else if (sr !== null) { tax = Math.round(tg * sr); rl = (sr * 100).toFixed(0) + '%'; }
     else { const r = _tfProgressiveTax(base); tax = Math.round(r.tax); rl = r.label; }
 
-    // 다주택 중과
-    if (!is1House && isHouse && sr === null) {
-      const sp = houseCount === 2 ? 0.10 : (houseCount >= 3 ? 0.20 : 0);
+    // 다주택 중과 (조정+적용 선택 시에만)
+    if (!is1House && isHouse && sr === null && adjArea && _tfSurcharge === 'yes') {
+      const sp = houseCount === 2 ? 0.20 : (houseCount >= 3 ? 0.30 : 0);
       if (sp > 0) { tax += Math.round(base * sp); rl += `+${(sp*100).toFixed(0)}%p`; }
     }
 
@@ -1323,7 +1355,7 @@ function tfReset() {
   $$('tf_acqPrice').value = '';
   $$('tf_salePrice').value = '';
   $$('tf_expenses').value = '';
-  _tfProp = '주택'; _tfOneHouse = 'yes'; _tfResidence = 36; _tfHouseCount = 1; _tfAdj = 'no';
+  _tfProp = '주택'; _tfOneHouse = 'yes'; _tfResidence = 36; _tfHouseCount = 1; _tfAdj = 'no'; _tfSaleAdj = 'no'; _tfSurcharge = 'no';
   document.querySelectorAll('#tf_propGroup .btn-toggle').forEach((b,i) => b.classList.toggle('active', i===0));
   document.querySelectorAll('#tf_oneHouseGroup .btn-toggle').forEach(b => b.classList.toggle('active', b.dataset.val==='yes'));
   document.querySelectorAll('#tf_residenceGroup .btn-toggle').forEach(b => b.classList.toggle('active', b.dataset.val==='36'));
