@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"/>
   <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/interior.css"/>
   <!-- 카카오 SDK -->
   <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" crossorigin="anonymous"></script>
 </head>
@@ -32,6 +33,9 @@
   <div class="tab-nav-inner">
     <button class="tab-btn active" data-tab="roi" onclick="switchTab('roi',this)">
       <i class="fas fa-chart-line"></i><span>수익률 분석</span>
+    </button>
+    <button class="tab-btn" data-tab="interior" onclick="switchTab('interior',this)">
+      <i class="fas fa-paint-roller"></i><span>인테리어</span>
     </button>
     <button class="tab-btn" data-tab="acquire" onclick="switchTab('acquire',this)">
       <i class="fas fa-file-invoice-dollar"></i><span>취득세</span>
@@ -225,6 +229,7 @@
               <label>인테리어·수리</label>
               <div class="input-wrap"><input type="number" id="r_repair" placeholder="자동(평×20만)" oninput="roiCalc();showKrw(this,'r_repair_krw')"/><span class="unit">원</span></div>
               <span class="krw-display" id="r_repair_krw"></span>
+              <button type="button" class="ic-open-link" style="border:0;background:none;text-align:left" onclick="switchTab('interior',document.querySelector('.tab-btn[data-tab=interior]'))">인테리어 상세 견적 계산하기</button>
               <p class="tip"><i class="fas fa-sync-alt"></i> 면적 입력 시 자동</p>
             </div>
           </div>
@@ -503,6 +508,8 @@
 <!-- ======================================================
      TAB 2: 취득세
      ====================================================== -->
+<section class="tab-pane" id="tab-interior"><div class="ic" id="interior-calculator"></div></section>
+
 <section class="tab-pane" id="tab-acquire">
   <div class="container calc-layout">
     <div class="calc-card">
@@ -1472,6 +1479,8 @@
 </footer>
 
 <script src="js/calc.js"></script>
+<script src="js/interior-engine.js"></script>
+<script src="js/interior-ui.js"></script>
 <!-- 대장TV 상담 리드 수집 (Supabase 연결) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
